@@ -4,7 +4,6 @@ import drawer.server.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
-
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
