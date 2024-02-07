@@ -1,6 +1,7 @@
 package drawer.server.domain.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import drawer.server.domain.user.entity.User;
 import lombok.*;
 
 @Getter
@@ -9,10 +10,14 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class LoginUserResponse {
 
-    @JsonProperty("access-token")
+    @JsonProperty("accessToken")
     private String accessToken;
 
-    public static LoginUserResponse from(String token) {
-        return LoginUserResponse.builder().accessToken(token).build();
+    private String email;
+
+    private String userId;
+
+    public static LoginUserResponse from(String token, User user) {
+        return LoginUserResponse.builder().accessToken(token).email(user.getEmail()).userId(user.getId().toString()).build();
     }
 }

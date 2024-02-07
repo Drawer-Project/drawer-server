@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return LoginUserResponse.from(
-                    jwtTokenManager.createToken(user.getUsername(), List.of("users")));
+                    jwtTokenManager.createToken(user.getUsername(), List.of("users")), user);
         } else {
             throw new IllegalPasswordArgumentException(AuthErrorCode.PASSWORD_DOES_NOT_MATCHED_ERROR);
         }

@@ -14,5 +14,5 @@ public interface BookmarkService {
 
     ReadBookmarkResponse readBookmark(long userId, long bookmarkId);
 
-    List<ReadBookmarkResponse> readBookmarks(long userId);
+    ReadBookmarksResponse readBookmarks(long userId);
 }
