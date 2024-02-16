@@ -88,10 +88,10 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public List<ReadBookmarkResponse> readBookmarks(long userId) {
-        return bookmarkRepository.findAllByUserId(userId).stream()
+    public ReadBookmarksResponse readBookmarks(long userId) {
+        return ReadBookmarksResponse.from(bookmarkRepository.findAllByUserId(userId).stream()
                 .map(ReadBookmarkResponse::from)
-                .toList();
+                .toList());
     }
 
     private Collection getCollectionOrNull(CreateBookmarkRequest request) {

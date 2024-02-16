@@ -2,7 +2,6 @@ package drawer.server.domain.bookmark.controller;
 
 import drawer.server.domain.bookmark.dto.bookmark.*;
 import drawer.server.domain.bookmark.service.BookmarkService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,9 +37,9 @@ public class BookmarkController {
     }
 
     @GetMapping("/api/v1/users/{userId}/bookmarks")
-    public ResponseEntity<List<ReadBookmarkResponse>> readBookmarks(
+    public ResponseEntity<ReadBookmarksResponse> readBookmarks(
             @PathVariable("userId") long userId) {
-        List<ReadBookmarkResponse> bookmarks = bookmarkService.readBookmarks(userId);
+        ReadBookmarksResponse bookmarks = bookmarkService.readBookmarks(userId);
         return ResponseEntity.status(HttpStatus.OK).body(bookmarks);
     }
 

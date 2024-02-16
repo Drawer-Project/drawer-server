@@ -40,22 +40,22 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf((csrf) -> csrf.disable())
-                .sessionManagement(
-                        (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        (url) ->
-                                url.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                                        .permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/signup")
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated())
-                .exceptionHandling((exception) -> exception.accessDeniedHandler(accessDeniedHandler))
-                .exceptionHandling(
-                        (exception) -> exception.authenticationEntryPoint(authenticationEntryPoint))
-                .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenManager),
-                        UsernamePasswordAuthenticationFilter.class)
+//                .sessionManagement(
+//                        (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(
+//                        (url) ->
+//                                url.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+//                                        .permitAll()
+//                                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/signup")
+//                                        .permitAll()
+//                                        .anyRequest()
+//                                        .authenticated())
+//                .exceptionHandling((exception) -> exception.accessDeniedHandler(accessDeniedHandler))
+//                .exceptionHandling(
+//                        (exception) -> exception.authenticationEntryPoint(authenticationEntryPoint))
+//                .addFilterBefore(
+//                        new JwtAuthenticationFilter(jwtTokenManager),
+//                        UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
