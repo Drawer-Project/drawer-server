@@ -3,13 +3,11 @@ package drawer.server.domain.bookmark.entity;
 import drawer.server.common.entity.BaseTimeEntity;
 import drawer.server.common.valuetype.DeleteFlag;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@ToString
 @Table(name = "bookmark_collection")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BookmarkCollection extends BaseTimeEntity {
@@ -19,11 +17,11 @@ public class BookmarkCollection extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bookmark_id")
     private Bookmark bookmark;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "collection_id")
     private Collection collection;
 
@@ -37,10 +35,18 @@ public class BookmarkCollection extends BaseTimeEntity {
     }
 
     public static BookmarkCollection of(Bookmark bookmark, Collection collection) {
-        return BookmarkCollection.builder().bookmark(bookmark).collection(collection).build();
+        BookmarkCollection bookmarkCollection =
+                BookmarkCollection.builder().bookmark(bookmark).collection(collection).build();
+
+        bookmark.addToCollection(bookmarkCollection);
+        collection.addBookmark(bookmarkCollection);
+
+        return bookmarkCollection;
     }
 
     public void delete() {
         this.deleteFlag.softDelete();
+        this.bookmark.removeFromBookmarkCollection(this);
+        this.collection.removeBookmarkCollection(this);
     }
 }

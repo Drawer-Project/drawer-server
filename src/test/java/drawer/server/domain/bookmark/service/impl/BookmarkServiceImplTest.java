@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import drawer.server.domain.bookmark.dto.bookmark.CreateBookmarkRequest;
 import drawer.server.domain.bookmark.dto.bookmark.CreateBookmarkResponse;
 import drawer.server.domain.bookmark.entity.Bookmark;
-import drawer.server.domain.bookmark.entity.BookmarkCollection;
 import drawer.server.domain.bookmark.entity.Collection;
 import drawer.server.domain.bookmark.repository.BookmarkCollectionRepository;
 import drawer.server.domain.bookmark.repository.BookmarkRepository;
@@ -14,11 +13,11 @@ import drawer.server.domain.bookmark.repository.CollectionRepository;
 import drawer.server.domain.bookmark.service.BookmarkService;
 import drawer.server.domain.user.entity.User;
 import drawer.server.domain.user.repository.UserRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -36,13 +35,20 @@ class BookmarkServiceImplTest {
     @Autowired private BookmarkService bookmarkService;
 
     private static final String TEST_EMAIL = "test@test.com";
+
     private static final String TEST_PASSWORD = "1234";
+
     private static final String TEST_URL = "www.example.com";
+
     private static final String TEST_TITLE = "title";
+
+    private static final String TEST_NAME = "collection";
+
+    private static final String TEST_DESC = "description";
 
     @Test
     @DisplayName("Create bookmark without collection info")
-    public void testCreateBookmarkWithoutCollection() throws Exception {
+    public void testCreateBookmarkWithoutCollection() {
         // given
         User savedUser = createUser();
         CreateBookmarkRequest addBookmarkDto =
@@ -50,90 +56,58 @@ class BookmarkServiceImplTest {
 
         // when
         CreateBookmarkResponse createBookmarkResponse =
-                bookmarkService.createBookmark(savedUser.getId(), addBookmarkDto);
+                bookmarkService.createBookmark(savedUser.getUuid(), addBookmarkDto);
 
         // then
         assertThat(createBookmarkResponse.getUrl()).isEqualTo(TEST_URL);
         assertThat(createBookmarkResponse.getTitle()).isEqualTo(TEST_TITLE);
-        assertThat(createBookmarkResponse.getCollectionInfo()).isNull();
+        assertThat(createBookmarkResponse.getCollectionId()).isNull();
     }
 
     @Test
     @DisplayName("Create bookmark with collection info")
-    public void testCreateBookmarkWithCollection() throws Exception {
+    public void testCreateBookmarkWithCollection() {
         // given
         User savedUser = createUser();
         Collection savedCollection = createCollection();
-        CreateBookmarkRequest addBookmarkDto = createBookmarkDtoWithCollection(savedCollection.getId());
+        CreateBookmarkRequest addBookmarkDto =
+                createBookmarkDtoWithCollection(savedCollection.getUuid());
 
         // when
         CreateBookmarkResponse createBookmarkResponse =
-                bookmarkService.createBookmark(savedUser.getId(), addBookmarkDto);
+                bookmarkService.createBookmark(savedUser.getUuid(), addBookmarkDto);
 
         // then
         assertThat(createBookmarkResponse.getUrl()).isEqualTo(TEST_URL);
         assertThat(createBookmarkResponse.getTitle()).isEqualTo(TEST_TITLE);
-        assertThat(createBookmarkResponse.getCollectionInfo()).isNotNull();
+        assertThat(createBookmarkResponse.getCollectionId()).isNotNull();
     }
 
     @Test
     @DisplayName("Delete bookmark with soft delete")
-    public void testDeleteBookmark() throws Exception {
+    public void testDeleteBookmark() {
         // given
         User savedUser = createUser();
         CreateBookmarkRequest addBookmarkDto =
-                CreateBookmarkRequest.builder()
-                        .url(TEST_URL)
-                        .title(TEST_TITLE)
-                        .id(savedUser.getId())
-                        .build();
+                CreateBookmarkRequest.builder().url(TEST_URL).title(TEST_TITLE).build();
 
         CreateBookmarkResponse createdBookmark =
-                bookmarkService.createBookmark(savedUser.getId(), addBookmarkDto);
+                bookmarkService.createBookmark(savedUser.getUuid(), addBookmarkDto);
 
         Bookmark bookmarkBeforeDelete =
-                bookmarkRepository.findByIdAndUserId(savedUser.getId(), createdBookmark.getId()).get();
-
-        // when
-        bookmarkBeforeDelete.delete();
-
-        // then
-        Bookmark bookmarkAfterDelete =
-                bookmarkRepository.findByIdAndUserId(savedUser.getId(), createdBookmark.getId()).get();
-        assertTrue(bookmarkAfterDelete.getDeleteFlag().isDeleted());
-    }
-
-    @Test
-    @Rollback(value = false)
-    @DisplayName("Delete bookmark with linked collection")
-    public void testDeleteBookmarkWithBookmarkCollection() throws Exception {
-        // given
-        User savedUser = createUser();
-        Collection savedCollection = createCollection();
-        CreateBookmarkRequest addBookmarkDto = createBookmarkDtoWithCollection(savedCollection.getId());
-
-        CreateBookmarkResponse createBookmarkResponse =
-                bookmarkService.createBookmark(savedUser.getId(), addBookmarkDto);
-        Bookmark bookmarkBeforeDelete =
-
                 bookmarkRepository
-                        .findByIdAndUserId(savedUser.getId(), createBookmarkResponse.getId())
+                        .findByUuidAndUserUuid(createdBookmark.getBookmarkId(), savedUser.getUuid())
                         .get();
 
         // when
         bookmarkBeforeDelete.delete();
 
         // then
-        Bookmark bookmarkAfterDelete =
-                bookmarkRepository
-                        .findByIdAndUserId(savedUser.getId(), createBookmarkResponse.getId())
-                        .get();
+        Optional<Bookmark> bookmarkAfterDelete =
+                bookmarkRepository.findByUuidAndUserUuid(
+                        createdBookmark.getBookmarkId(), savedUser.getUuid());
 
-        BookmarkCollection bookmarkCollectionAfterDelete =
-                bookmarkCollectionRepository.findByBookmarkId(createBookmarkResponse.getId());
-
-        assertTrue(bookmarkAfterDelete.getDeleteFlag().isDeleted());
-        assertTrue(bookmarkCollectionAfterDelete.getDeleteFlag().isDeleted());
+        assertFalse(bookmarkAfterDelete.isPresent());
     }
 
     private User createUser() {
@@ -142,10 +116,14 @@ class BookmarkServiceImplTest {
 
     private Collection createCollection() {
         return collectionRepository.save(
-                Collection.builder().name("collection").description("description").build());
+                Collection.builder().name(TEST_NAME).description(TEST_DESC).build());
     }
 
-    private CreateBookmarkRequest createBookmarkDtoWithCollection(Long collectionId) {
-        return CreateBookmarkRequest.builder().url(TEST_URL).title(TEST_TITLE).id(collectionId).build();
+    private CreateBookmarkRequest createBookmarkDtoWithCollection(String collectionId) {
+        return CreateBookmarkRequest.builder()
+                .url(TEST_URL)
+                .title(TEST_TITLE)
+                .collectionId(collectionId)
+                .build();
     }
 }

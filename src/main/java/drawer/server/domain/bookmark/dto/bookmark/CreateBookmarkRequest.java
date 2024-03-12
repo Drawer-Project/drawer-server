@@ -1,6 +1,5 @@
 package drawer.server.domain.bookmark.dto.bookmark;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -8,16 +7,16 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class CreateBookmarkRequest {
 
-    @JsonProperty("collection_id")
-    private Long id;
+    private String collectionId;
 
     private String url;
 
     private String title;
 
     public boolean hasCollectionInfo() {
-        return id != null;
+        return collectionId != null;
     }
 }

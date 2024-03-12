@@ -1,4 +1,4 @@
-package drawer.server.domain.bookmark.exception;
+package drawer.server.domain.bookmark.exception.bookmark;
 
 import drawer.server.common.error.ErrorCode;
 import lombok.Getter;
@@ -10,11 +10,6 @@ public enum BookmarkErrorCode implements ErrorCode {
             HttpStatus.BAD_REQUEST.value(),
             HttpStatus.BAD_REQUEST.getReasonPhrase(),
             "Bookmark does not exist."),
-
-    COLLECTION_NOT_FOUND(
-            HttpStatus.BAD_REQUEST.value(),
-            HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            "Collection does not exist."),
 
     USER_NOT_FOUND_IN_BOOKMARK_DOMAIN(
             HttpStatus.BAD_REQUEST.value(),

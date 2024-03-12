@@ -1,4 +1,4 @@
-package drawer.server.domain.bookmark.exception;
+package drawer.server.domain.bookmark.exception.bookmark;
 
 import lombok.Getter;
 

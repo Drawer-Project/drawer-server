@@ -4,13 +4,14 @@ import drawer.server.common.entity.BaseTimeEntity;
 import drawer.server.common.valuetype.DeleteFlag;
 import drawer.server.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import lombok.*;
 
 @Entity
 @Getter
+@ToString
 @Table(name = "bookmarks")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Bookmark extends BaseTimeEntity {
@@ -20,6 +21,9 @@ public class Bookmark extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(updatable = false, nullable = false, unique = true)
+    private String uuid;
+
     private String url;
 
     private String title;
@@ -28,17 +32,17 @@ public class Bookmark extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(mappedBy = "bookmark")
-    private BookmarkCollection bookmarkCollection;
+    @OneToMany(mappedBy = "bookmark")
+    private List<BookmarkCollection> bookmarkCollection = new ArrayList<>();
 
     @Embedded private DeleteFlag deleteFlag;
 
     @Builder
-    private Bookmark(String url, String title, User user, BookmarkCollection bookmarkCollection) {
+    private Bookmark(String url, String title, User user) {
+        this.uuid = UUID.randomUUID().toString();
         this.url = url;
         this.title = title;
         this.user = user;
-        this.bookmarkCollection = bookmarkCollection;
         this.deleteFlag = new DeleteFlag();
     }
 
@@ -47,7 +51,11 @@ public class Bookmark extends BaseTimeEntity {
     }
 
     public void addToCollection(BookmarkCollection bookmarkCollection) {
-        this.bookmarkCollection = bookmarkCollection;
+        this.bookmarkCollection.add(bookmarkCollection);
+    }
+
+    public void removeFromBookmarkCollection(BookmarkCollection bookmarkCollection) {
+        this.bookmarkCollection.remove(bookmarkCollection);
     }
 
     public void update(String url, String title) {
@@ -58,8 +66,8 @@ public class Bookmark extends BaseTimeEntity {
     public void delete() {
         this.deleteFlag.softDelete();
 
-        if (this.bookmarkCollection != null) {
-            this.bookmarkCollection.delete();
+        if (!this.bookmarkCollection.isEmpty()) {
+            this.bookmarkCollection.forEach(BookmarkCollection::delete);
         }
     }
 }

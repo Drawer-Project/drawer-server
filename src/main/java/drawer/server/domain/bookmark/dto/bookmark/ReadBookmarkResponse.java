@@ -1,6 +1,5 @@
 package drawer.server.domain.bookmark.dto.bookmark;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import drawer.server.domain.bookmark.entity.Bookmark;
 import lombok.*;
 
@@ -11,18 +10,17 @@ import lombok.*;
 @AllArgsConstructor
 public class ReadBookmarkResponse {
 
+    private String bookmarkId;
+
     private String url;
 
     private String title;
-
-    @JsonProperty("bookmark_id")
-    private long id;
 
     public static ReadBookmarkResponse from(Bookmark bookmark) {
         return ReadBookmarkResponse.builder()
                 .url(bookmark.getUrl())
                 .title(bookmark.getTitle())
-                .id(bookmark.getId())
+                .bookmarkId(bookmark.getUuid())
                 .build();
     }
 }
