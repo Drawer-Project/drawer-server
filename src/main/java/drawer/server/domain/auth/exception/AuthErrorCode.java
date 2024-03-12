@@ -14,7 +14,12 @@ public enum AuthErrorCode implements ErrorCode {
     PASSWORD_DOES_NOT_MATCHED_ERROR(
             HttpStatus.UNAUTHORIZED.value(),
             HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-            "Password does not matched.");
+            "Password does not matched."),
+
+    DUPLICATE_EMAIL_ERROR(
+            HttpStatus.BAD_REQUEST.value(),
+            HttpStatus.BAD_GATEWAY.getReasonPhrase(),
+            "The email address provided already exists in the system.");
 
     private final int status;
 
