@@ -4,6 +4,7 @@ import drawer.server.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,20 +22,36 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "user_id", updatable = false)
     private Long id;
 
+    @Column(updatable = false, nullable = false, unique = true)
+    private String uuid;
+
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
     @Builder
     private User(String email, String password) {
+        this.uuid = UUID.randomUUID().toString();
         this.email = email;
         this.password = password;
+        this.profileImageUrl = null;
     }
 
     public static User of(String email, String password) {
         return User.builder().email(email).password(password).build();
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
     }
 
     @Override
