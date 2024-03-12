@@ -1,7 +1,5 @@
 package drawer.server.common.security;
 
-import drawer.server.common.error.GlobalErrorCode;
-import drawer.server.common.error.GlobalException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +17,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             HttpServletResponse response,
             AuthenticationException authException)
             throws IOException, ServletException {
-        throw new GlobalException(GlobalErrorCode.AUTHENTICATION_FAIL_ERROR);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }

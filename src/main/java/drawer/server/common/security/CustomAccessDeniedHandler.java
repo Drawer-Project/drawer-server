@@ -1,7 +1,5 @@
 package drawer.server.common.security;
 
-import drawer.server.common.error.GlobalErrorCode;
-import drawer.server.common.error.GlobalException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +17,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             HttpServletResponse response,
             AccessDeniedException accessDeniedException)
             throws IOException, ServletException {
-        throw new GlobalException(GlobalErrorCode.ACCESS_DENIED_ERROR);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }
