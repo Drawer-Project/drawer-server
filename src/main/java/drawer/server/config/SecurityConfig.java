@@ -4,6 +4,8 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 
 import drawer.server.common.security.jwt.JwtAuthenticationFilter;
 import drawer.server.common.security.jwt.JwtTokenManager;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @RequiredArgsConstructor
@@ -38,25 +42,54 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity
-                .csrf((csrf) -> csrf.disable())
-                .sessionManagement(
-                        (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        (url) ->
-                                url.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                                        .permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/signup")
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated())
-                .exceptionHandling((exception) -> exception.accessDeniedHandler(accessDeniedHandler))
-                .exceptionHandling(
-                        (exception) -> exception.authenticationEntryPoint(authenticationEntryPoint))
-                .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenManager),
-                        UsernamePasswordAuthenticationFilter.class)
-                .build();
+
+        httpSecurity.csrf((auth) -> auth.disable());
+        httpSecurity.formLogin((auth) -> auth.disable());
+        httpSecurity.httpBasic((auth) -> auth.disable());
+
+        httpSecurity.authorizeHttpRequests(
+                (auth) ->
+                        auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/login", "/api/v1/signup")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated());
+
+        httpSecurity.sessionManagement(
+                (auth) -> auth.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        httpSecurity.addFilterBefore(
+                new JwtAuthenticationFilter(jwtTokenManager), UsernamePasswordAuthenticationFilter.class);
+
+        httpSecurity.exceptionHandling((auth) -> auth.accessDeniedHandler(accessDeniedHandler));
+        httpSecurity.exceptionHandling(
+                (auth) -> auth.authenticationEntryPoint(authenticationEntryPoint));
+
+        httpSecurity.cors(
+                (corsCustomizer ->
+                        corsCustomizer.configurationSource(
+                                new CorsConfigurationSource() {
+
+                                    @Override
+                                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+
+                                        CorsConfiguration configuration = new CorsConfiguration();
+
+                                        configuration.setAllowedOrigins(
+                                                Collections.singletonList("http://localhost:5173"));
+                                        configuration.setAllowedMethods(Collections.singletonList("*"));
+                                        configuration.setAllowCredentials(true);
+                                        configuration.setAllowedHeaders(Collections.singletonList("*"));
+                                        configuration.setMaxAge(3600L);
+
+                                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
+                                        return configuration;
+                                    }
+                                })));
+
+        return httpSecurity.build();
     }
 
     @Bean
