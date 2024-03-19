@@ -1,12 +1,11 @@
 package drawer.server.config;
 
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
-
 import drawer.server.common.security.jwt.JwtAuthenticationFilter;
 import drawer.server.common.security.jwt.JwtTokenManager;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,16 +27,14 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Value("${application.source.url}")
+    private String url;
+
     private final JwtTokenManager jwtTokenManager;
 
     private final AccessDeniedHandler accessDeniedHandler;
 
     private final AuthenticationEntryPoint authenticationEntryPoint;
-
-    @Bean
-    public WebSecurityCustomizer configure() {
-        return (web) -> web.ignoring().requestMatchers(toH2Console());
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -70,14 +66,14 @@ public class SecurityConfig {
                 (corsCustomizer ->
                         corsCustomizer.configurationSource(
                                 new CorsConfigurationSource() {
-
                                     @Override
                                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
+                                        System.out.println("url : " + url);
+
                                         CorsConfiguration configuration = new CorsConfiguration();
 
-                                        configuration.setAllowedOrigins(
-                                                Collections.singletonList("http://localhost:5173"));
+                                        configuration.setAllowedOrigins(Collections.singletonList(url));
                                         configuration.setAllowedMethods(Collections.singletonList("*"));
                                         configuration.setAllowCredentials(true);
                                         configuration.setAllowedHeaders(Collections.singletonList("*"));
