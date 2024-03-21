@@ -10,13 +10,7 @@ import lombok.*;
 @EqualsAndHashCode
 public class CreateBookmarkRequest {
 
-    private String collectionId;
-
     private String url;
 
     private String title;
-
-    public boolean hasCollectionInfo() {
-        return collectionId != null;
-    }
 }
