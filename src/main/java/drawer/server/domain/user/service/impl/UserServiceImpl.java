@@ -1,7 +1,7 @@
 package drawer.server.domain.user.service.impl;
 
-import drawer.server.common.security.SecurityUtils;
-import drawer.server.common.security.jwt.JwtTokenManager;
+import drawer.server.security.SecurityUtils;
+import drawer.server.security.jwt.JwtTokenManager;
 import drawer.server.domain.user.dto.*;
 import drawer.server.domain.user.entity.User;
 import drawer.server.domain.user.exception.UserNotFoundException;
