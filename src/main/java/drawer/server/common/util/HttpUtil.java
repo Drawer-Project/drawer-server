@@ -1,9 +1,9 @@
-package drawer.server.common.security;
+package drawer.server.common.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 
-public class SecurityUtils {
+public class HttpUtil {
 
     private static final String BLANK_OF_HEADER = " ";
 

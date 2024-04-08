@@ -1,4 +1,4 @@
-package drawer.server.common.security.jwt;
+package drawer.server.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
