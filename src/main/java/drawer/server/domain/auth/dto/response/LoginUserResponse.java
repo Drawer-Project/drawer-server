@@ -1,4 +1,4 @@
-package drawer.server.domain.auth.dto;
+package drawer.server.domain.auth.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import drawer.server.domain.user.entity.User;
